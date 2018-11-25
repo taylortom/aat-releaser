@@ -1,8 +1,5 @@
 #! /usr/bin/env node
-const async = require('async');
-const path = require('path');
 const Utils = require('./lib/Utils');
-
 const github = require('./lib/github');
 const changelog = require('./lib/changelog');
 const package = require('./lib/package');
