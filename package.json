@@ -6,6 +6,9 @@
   "bin": {
     "aat-releaser": "index.js"
   },
+  "scripts": {
+    "start": "node app/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/taylortom/aat-releaser.git"
@@ -23,6 +26,7 @@
     "async": "2.6.1",
     "axios": "0.18.0",
     "chalk": "2.4.1",
+    "express": "4.16.4",
     "fs-extra": "7.0.1",
     "semver": "5.6.0"
   }
