@@ -9,6 +9,9 @@
   "scripts": {
     "start": "node ./app/index.js"
   },
+  "engines": {
+    "node": "10"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/taylortom/aat-releaser.git"
