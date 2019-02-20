@@ -9,8 +9,9 @@ const Utils = require('../lib/Utils');
 
 const app = express();
 const port = process.env.PORT || 5000;
+const publicDir = path.join(process.cwd(), 'app', 'public');
 
-app.use(express.static('app/public'));
+app.use(express.static(publicDir));
 app.use('/api', initAPI());
 
 app.listen(port, () => console.log(`aat-releaser listening on port ${port}`));
@@ -37,8 +38,8 @@ function getData(req, res, next) {
     Utils.writeFile('./app/public/CHANGELOG.md', data);
   });
   process.env.RELEASE = req.query.v;
-  process.env.CWD = path.join(process.cwd(), 'app', 'public');
-  
+  process.env.CWD = publicDir;
+
   github().then(githubData => {
     Promise.all([
       changelog(githubData),
