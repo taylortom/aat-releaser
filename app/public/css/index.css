@@ -1,0 +1,21 @@
+html {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 300;
+}
+
+body {
+  padding-top: 20px;
+  padding-bottom: 50px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+p.instruction {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+a.file {
+  display: block;
+  margin-bottom: 5px;
+}
