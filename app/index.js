@@ -5,7 +5,7 @@ const path = require('path');
 const changelog = require('../lib/changelog');
 const github = require('../lib/github');
 const package = require('../lib/package');
-const Utils = require('../lib/Utils');
+const Utils = require('../lib/utils');
 
 const app = express();
 const port = process.env.PORT || 5000;
