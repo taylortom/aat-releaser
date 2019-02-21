@@ -2,7 +2,6 @@
   "name": "aat-releaser",
   "version": "0.0.1",
   "description": "Node.js utility to help with releasing the Adapt authoring tool",
-  "main": "index.js",
   "bin": {
     "aat-releaser": "index.js"
   },
