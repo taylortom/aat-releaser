@@ -1,74 +1,141 @@
-$(initSelect);
+/**
+* Templates
+*/
+
+var heading = function(level, text) {
+  return _.template("<h<%=level%>><%=text%></h>")({ level: level, text: text});
+};
+var paragraph = function(text) {
+  return _.template("<p><%=text%></p>")({ text: text });
+};
+var fileDL = function(filename) {
+  return _.template("<a class='file' href='/<%=filename%>' download='<%=filename%>'>Download <%=filename%></a>")({ filename: filename });
+};
+var nextButton = function() {
+  var $btn = $(_.template("<button class='next'>Next</button>")());
+  $btn.click(function() { $(document).trigger('next'); });
+  return $btn;
+};
+var list = function(heading, items) {
+  return _.template(
+    "<div class='items'>" +
+      "<h4><%=heading%></h4>" +
+      "<ul>" +
+        "<%_.forEach(items, function(i) {%>" +
+          "<li>#<%=i.number%>: <%=i.title%></li>" +
+        "<%})%>" +
+      "</ul>" +
+    "</div>"
+  )({ heading: heading, items: items });
+}
+var select = function(id, options) {
+  return _.template(
+    "<select id='<%=id%>'>" +
+      "<option disabled selected>Select a milestone</option>" +
+      "<%_.forEach(options, function(o) {%>" +
+        "<option value='<%=o.version%>'><%=o.name%></option>" +
+      "<%})%>" +
+    "</select>"
+  )({ id: id, options: options });
+};
+
+/**
+* Steps
+*/
+var steps = [
+  'Intro',
+  'Warnings',
+  'Summary',
+  'Files'
+];
+var step = 0;
+
+/**
+* Functions
+*/
+
+$(function() {
+  initSelect();
+  $(document).on('next', handleNext);
+});
 
 function initSelect() {
   $.get('/api/milestones', function(data) {
-    $select = $('<select>', { className: 'test' });
-    $select.append($('<option>', { disabled: true, selected: true }).text('Select a milestone'));
-    data.sort().forEach(function(m) {
-      $option = $('<option>', { value: m.match(/^\d\.\d\.\d/), text: m }).text(m);
-      $select.append($option);
+    $('.form').append(select('milestones', data.sort().map(function(m) { return { version: m.match(/^\d\.\d\.\d/), name: m } })));
+
+    $('select#milestones').on('change', function onSelectUpdate(e) {
+      var version = $(e.currentTarget).val();
+      if(version) $.get('/api/data?v=' + version, render);
     });
-    $('.form').append($select);
-    $select.on('change', onSelectUpdate);
   });
 }
 
-function onSelectUpdate(e) {
-  var version = $(e.currentTarget).val();
-  if(version) renderFiles(version);
+function handleNext(e) {
+  console.log('Next!!', steps[step++]);
 }
 
-// TODO needs to be templated...
-function renderFiles(version) {
-  $.get('/api/data?v=' + version, function(data) {
-    $('.output').html(
-      $('<h2>').text(data.milestone.title),
-      $('<p>').text(data.milestone.description),
-      $('<div class="divider">')
+function render(data) {
+  $('.output').html('');
+  renderReleaseHeader(data.milestone);
+  appendOutput(nextButton());
+
+  if(data.warnings) {
+    renderWarnings(data.warnings);
+  }
+  if(!data.bugs.length && !data.features.length) {
+    return appendOutput(
+      heading(3, 'Nothing to see here...'),
+      paragraph('No work has been completed for this release.')
     );
-    if(data.warnings.unstarted.length || data.warnings.inProgress.length || data.warnings.awaitingReview.length) {
-      $('.output').append(
-        $('<h3>').text('Warnings'),
-        $('<p>').text('The following bugs have not been merged, and will be missed from the release.')
-      );
-      if(data.warnings.unstarted.length) {
-        $('.output').append(
-          $('<h4>').text('Unstarted'),
-          renderItems(data.warnings.unstarted)
-        );
-      }
-      if(data.warnings.inProgress.length) {
-        $('.output').append(
-          $('<h4>').text('In-progress'),
-          renderItems(data.warnings.inProgress)
-        );
-      }
-      if(data.warnings.awaitingReview.length) {
-        $('.output').append(
-          $('<h4>').text('Awaiting Review'),
-          renderItems(data.warnings.awaitingReview)
-        );
-      }
-      $('.output').append($('<div class="divider">'));
-    }
-    $('.output').append(
-      $('<h3>').text('Release Summary'),
-      $('<h4>').text('Fixed'),
-      renderItems(data.bugs),
-      $('<h4>').text('Added'),
-      renderItems(data.features),
-      $('<div class="divider">'),
-      $('<h3>').text('Files'),
-      $('<a>', { class: 'file', href: '/package.json', download: 'package-' + version + '.json' }).text('Download package.json'),
-      $('<a>', { class: 'file', href: '/CHANGELOG.md', download: 'CHANGELOG-' + version + '.md' }).text('Download CHANGELOG.md')
-    );
-  });
+  }
+  renderSummary(data.bugs, data.features);
+  renderFiles();
 }
 
-function renderItems(items) {
-  $container = $('<div>');
-  items.forEach(function(i) {
-    $container.append($('<div class="item">').text('#' + i.number + ': ' + i.title));
-  });
-  return $container;
+function appendOutput($el, $el2) {
+  $('.output').append($el, $el2);
+}
+
+function renderItems(heading, items) {
+  return $('<div>').append(heading(4, heading), list(items));
+}
+
+function renderReleaseHeader(milestone) {
+  appendOutput(heading(2, milestone.title), paragraph(milestone.description));
+}
+
+function renderWarnings(warnings) {
+  var _renderWarnings = function(heading, warnings) {
+    appendOutput(list(heading, warnings));
+  };
+  var unstarted = warnings.unstarted.length ? warnings.unstarted : undefined;
+  var inProgress = warnings.inProgress.length ? warnings.inProgress : undefined;
+  var awaitingReview = warnings.awaitingReview.length ? warnings.awaitingReview : undefined;
+
+  if(!unstarted && !inProgress && !awaitingReview) {
+    return;
+  }
+  appendOutput(
+    heading(3, 'Warnings'),
+    paragraph('The following bugs have not been merged, and will be missed from the release:')
+  );
+  if(unstarted) _renderWarnings('Unstarted', unstarted);
+  if(inProgress) _renderWarnings('In-progress', inProgress);
+  if(awaitingReview) _renderWarnings('Awaiting Review', awaitingReview);
+}
+
+function renderSummary(bugs, features) {
+  appendOutput(
+    heading(3, 'Release Summary'),
+    list('Fixed', bugs),
+    list('Added', features),
+  );
+}
+
+function renderFiles() {
+  appendOutput(
+    heading(3, 'Files'),
+    fileDL('package.json'),
+    fileDL('CHANGELOG.md')
+  );
 }
