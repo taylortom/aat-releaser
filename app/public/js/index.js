@@ -77,7 +77,6 @@ function handleNext(e) {
 function render(data) {
   $('.output').html('');
   renderReleaseHeader(data.milestone);
-  appendOutput(nextButton());
 
   if(data.warnings) {
     renderWarnings(data.warnings);
