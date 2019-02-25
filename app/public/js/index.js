@@ -91,9 +91,9 @@ function render(data) {
   renderSummary(data.bugs, data.features);
   renderFiles();
 }
-
-function appendOutput($el, $el2) {
-  $('.output').append($el, $el2);
+// HACK do the params better...
+function appendOutput($el, $el2, $el3) {
+  $('.output').append($el, $el2, $el3);
 }
 
 function renderItems(heading, items) {
