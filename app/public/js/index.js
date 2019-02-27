@@ -9,7 +9,7 @@ var paragraph = function(text) {
   return _.template("<p><%=text%></p>")({ text: text });
 };
 var fileDL = function(filename) {
-  return _.template("<a class='file' href='/<%=filename%>' target-'_blank'>Download <%=filename%></a>")({ filename: filename });
+  return _.template("<a class='file' href='/<%=filename%>' target='_blank'><%=filename%></a>")({ filename: filename });
 };
 var nextButton = function() {
   var $btn = $(_.template("<button class='next'>Next</button>")());
