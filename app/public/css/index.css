@@ -8,6 +8,50 @@ body {
   padding-bottom: 50px;
   max-width: 800px;
   margin: 0 auto;
+  background-color: #f3fcfe;
+}
+
+h1, h2, h3, h4, h5 {
+  margin: 0;
+}
+a {
+  text-decoration: none;
+  color: #00dd95;
+}
+a.ignore {
+  color: #ccc;
+  text-decoration: line-through;
+}
+
+.output {
+  margin: 0 auto;
+  margin-top: 20px;
+}
+
+.section {
+  padding: 20px;
+  margin-bottom: 10px;
+  background-color: white;
+  border: 1px solid #d6f2f9;
+}
+
+.section#header {
+  margin-bottom: 25px;
+  padding: 0;
+  background: none;
+  border: none;
+}
+.section#header h2, .section#header p {
+  margin: 0;
+}
+
+.section#warnings {
+  background-color: #ffa08d;
+  color: white;
+}
+.section#warnings a {
+  color: inherit;
+  text-decoration: underline;
 }
 
 p.instruction {

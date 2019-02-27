@@ -17,7 +17,7 @@ var list = function(heading, items) {
       "<h4><%=heading%></h4>" +
       "<ul>" +
         "<%_.forEach(items, function(i) {%>" +
-          "<li>#<%=i.number%>: <%=i.title%></li>" +
+          "<li><a <%if(i.ignore){%>class='ignore'<%}%> href='<%=i.html_url%>' target='_blank'>#<%=i.number%>: <%=i.title%></a></li>" +
         "<%})%>" +
       "</ul>" +
     "</div>"
@@ -43,8 +43,12 @@ $(function() {
 });
 
 function initSelect() {
+  var $tempSelect = $(select('milestones', [])).attr('disabled', true);
+  $('.form').append($tempSelect);
+
   $.get('/api/milestones', function(data) {
     $('.form').append(select('milestones', data.sort().map(function(m) { return { version: m.match(/^\d\.\d\.\d/), name: m } })));
+    $tempSelect.remove();
 
     $('select#milestones').on('change', function onSelectUpdate(e) {
       var version = $(e.currentTarget).val();
@@ -59,19 +63,24 @@ function render(data) {
 
   if(data.warnings) {
     renderWarnings(data.warnings);
-  }
-  if(!data.bugs.length && !data.features.length) {
-    return appendOutput(
-      heading(3, 'Nothing to see here...'),
-      paragraph('No work has been completed for this release.')
-    );
+  } else {
+    appendSection('nowarnings', [
+      heading(3, 'Ready for release'),
+      paragraph('All open issues have been completed.')
+    ]);
   }
   renderSummary(data.bugs, data.features);
   renderFiles();
 }
-// HACK do the params better...
-function appendOutput($el, $el2, $el3) {
-  $('.output').append($el, $el2, $el3);
+
+function appendSection(id, children) {
+  if(arguments.length === 1) {
+    children = id;
+    id = undefined;
+  }
+  $parent = $('<div>', { id: id, class: 'section' });
+  children.forEach(function($el) { $parent.append($el); });
+  $('.output').append($parent);
 }
 
 function renderItems(heading, items) {
@@ -79,13 +88,10 @@ function renderItems(heading, items) {
 }
 
 function renderReleaseHeader(milestone) {
-  appendOutput(heading(2, milestone.title), paragraph(milestone.description));
+  appendSection('header', [heading(2, milestone.title), paragraph(milestone.description)]);
 }
 
 function renderWarnings(warnings) {
-  var _renderWarnings = function(heading, warnings) {
-    appendOutput(list(heading, warnings));
-  };
   var unstarted = warnings.unstarted.length ? warnings.unstarted : undefined;
   var inProgress = warnings.inProgress.length ? warnings.inProgress : undefined;
   var awaitingReview = warnings.awaitingReview.length ? warnings.awaitingReview : undefined;
@@ -93,27 +99,38 @@ function renderWarnings(warnings) {
   if(!unstarted && !inProgress && !awaitingReview) {
     return;
   }
-  appendOutput(
+  var divs = [
     heading(3, 'Warnings'),
     paragraph('The following bugs have not been merged, and will be missed from the release:')
-  );
-  if(unstarted) _renderWarnings('Unstarted', unstarted);
-  if(inProgress) _renderWarnings('In-progress', inProgress);
-  if(awaitingReview) _renderWarnings('Awaiting Review', awaitingReview);
+  ];
+  if(unstarted) divs.push(list('Unstarted', unstarted));
+  if(inProgress) divs.push(list('In-progress', inProgress));
+  if(awaitingReview) divs.push(list('Awaiting Review', awaitingReview));
+
+  appendSection('warnings', divs);
 }
 
 function renderSummary(bugs, features) {
-  appendOutput(
+  if(!bugs.length && !features.length) {
+    return appendSection('summary', [
+      heading(3, 'Nothing to see here...'),
+      paragraph('No work has been completed for this release.')
+    ]);
+  }
+  appendSection('summary', [
     heading(3, 'Release Summary'),
+    paragraph('The following bugs and enhancements are included in this release'),
+    paragraph('Note: those issues with a strikethrough will be omitted from the final CHANGELOG.md'),
     list('Fixed', bugs),
-    list('Added', features),
-  );
+    list('Added', features)
+  ]);
 }
 
 function renderFiles() {
-  appendOutput(
+  appendSection('files', [
     heading(3, 'Files'),
+    paragraph('The documentation for release has been generated. Click the below to view the amended files:'),
     fileDL('package.json'),
     fileDL('CHANGELOG.md')
-  );
+  ]);
 }
