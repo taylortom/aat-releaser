@@ -11,11 +11,6 @@ var paragraph = function(text) {
 var fileDL = function(filename) {
   return _.template("<a class='file' href='/<%=filename%>' target='_blank'><%=filename%></a>")({ filename: filename });
 };
-var nextButton = function() {
-  var $btn = $(_.template("<button class='next'>Next</button>")());
-  $btn.click(function() { $(document).trigger('next'); });
-  return $btn;
-};
 var list = function(heading, items) {
   return _.template(
     "<div class='items'>" +
@@ -40,23 +35,11 @@ var select = function(id, options) {
 };
 
 /**
-* Steps
-*/
-var steps = [
-  'Intro',
-  'Warnings',
-  'Summary',
-  'Files'
-];
-var step = 0;
-
-/**
 * Functions
 */
 
 $(function() {
   initSelect();
-  $(document).on('next', handleNext);
 });
 
 function initSelect() {
@@ -68,10 +51,6 @@ function initSelect() {
       if(version) $.get('/api/data?v=' + version, render);
     });
   });
-}
-
-function handleNext(e) {
-  console.log('Next!!', steps[step++]);
 }
 
 function render(data) {
