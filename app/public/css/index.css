@@ -45,14 +45,18 @@ a.ignore {
   margin: 0;
 }
 
-.section#warnings {
-  background-color: #ffa08d;
+.section#warnings, .section#nowarnings {
   color: white;
+  padding: 15px 20px;
 }
-.section#warnings a {
+.section#warnings a, .section#nowarnings a {
   color: inherit;
   text-decoration: underline;
 }
+.section#warnings { background-color: #ffa08d; }
+.section#nowarnings { background-color: #00dd95; }
+
+.section#nowarnings p { margin: 0; }
 
 p.instruction {
   font-weight: bold;

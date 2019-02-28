@@ -63,11 +63,6 @@ function render(data) {
 
   if(data.warnings) {
     renderWarnings(data.warnings);
-  } else {
-    appendSection('nowarnings', [
-      heading(3, 'Ready for release'),
-      paragraph('All open issues have been completed.')
-    ]);
   }
   renderSummary(data.bugs, data.features);
   renderFiles();
@@ -97,7 +92,10 @@ function renderWarnings(warnings) {
   var awaitingReview = warnings.awaitingReview.length ? warnings.awaitingReview : undefined;
 
   if(!unstarted && !inProgress && !awaitingReview) {
-    return;
+    return appendSection('nowarnings', [
+      heading(3, 'Ready for release'),
+      paragraph('All open issues have been completed.')
+    ]);
   }
   var divs = [
     heading(3, 'Warnings'),
