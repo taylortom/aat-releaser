@@ -47,7 +47,7 @@ function initSelect() {
   $('.form').append($tempSelect);
 
   $.get('/api/milestones', function(data) {
-    $('.form').append(select('milestones', data.sort().map(function(m) { return { version: m.match(/^\d\.\d\.\d/), name: m } })));
+    $('.form').append(select('milestones', data.sort().map(function(m) { return { version: m.match(/^\d\d?\.\d\d?\.\d\d?/), name: m } })));
     $tempSelect.remove();
 
     $('select#milestones').on('change', function onSelectUpdate(e) {
