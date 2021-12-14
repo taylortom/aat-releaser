@@ -83,7 +83,8 @@ function renderItems(heading, items) {
 }
 
 function renderReleaseHeader(milestone) {
-  appendSection('header', [heading(2, milestone.title), paragraph(milestone.description)]);
+  const descHtml = new showdown.Converter().makeHtml(milestone.description);
+  appendSection('header', [heading(2, milestone.title), paragraph(descHtml)]);
 }
 
 function renderWarnings(warnings) {

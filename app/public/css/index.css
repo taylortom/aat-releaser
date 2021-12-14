@@ -1,6 +1,5 @@
 html {
   font-family: 'Open Sans', sans-serif;
-  font-weight: 300;
 }
 
 body {
@@ -43,9 +42,6 @@ a.ignore {
   padding: 0;
   background: none;
   border: none;
-}
-.section#header h2, .section#header p {
-  margin: 0;
 }
 
 .section#warnings, .section#nowarnings {

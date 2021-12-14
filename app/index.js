@@ -23,12 +23,21 @@ function initAPI() {
 }
 
 function getMilestones(req, res, next) {
-  Utils.fetchGitHubData('milestones').then(data => res.json(data.map(m => m.title)));
+  Utils.fetchGitHubData('milestones')
+    .then(data => res.json(data.map(m => m.title)))
+    .catch(e => {
+      const { status, statusText, headers } = e.response;
+      if(headers['x-ratelimit-remaining'] === '0') {
+        console.log(new Date(headers['x-ratelimit-reset']));
+      }
+      res.status(status).json({ message: statusText })
+    });
 }
 
-function getData(req, res, next) {
-  if(!req.query.v.match(/^\d\.\d\.\d/)) {
+async function getData(req, res, next) {
+  if(!Utils.isValidRelease(req.query.v)) {
     res.status(400).json({ message: `Invalid release version passed '${req.query.v}'` });
+    return;
   }
   // TODO need to actually wait for these to finish...
   Utils.fetchData('https://raw.githubusercontent.com/adaptlearning/adapt_authoring/master/package.json').then(data => {
@@ -40,12 +49,13 @@ function getData(req, res, next) {
   process.env.RELEASE = req.query.v;
   process.env.CWD = publicDir;
 
-  github().then(githubData => {
-    Promise.all([
-      changelog(githubData),
-      package(githubData)
-    ]).then(() => res.json(githubData));
-  }).catch(e => {
+  try {
+    const githubData = await github();
+    await changelog(githubData);
+    await package(githubData);
+    res.json(githubData);
+  } catch(e) {
+    console.trace(e);
     res.status(500).json({ message: e.message });
-  });
+  }
 }
