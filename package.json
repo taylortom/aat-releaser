@@ -9,7 +9,7 @@
     "start": "node ./app/index.js"
   },
   "engines": {
-    "node": "10"
+    "node": "16"
   },
   "repository": {
     "type": "git",
