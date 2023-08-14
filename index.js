@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-const Utils = require('./lib/Utils');
+const Utils = require('./lib/utils');
 const github = require('./lib/github');
 const changelog = require('./lib/changelog');
 const package = require('./lib/package');
